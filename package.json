@@ -20,7 +20,7 @@
     "watch": "npm-run-all -s build watch-ts",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
-    "start:app": "node .build/index.js",
+    "start:app": "node ./build/index.js",
     "start": "cross-env NODE_ENV=production node_modules/.bin/babel-node --extensions .ts src/index.ts",
     "start:pm2": "cross-env NODE_ENV=production pm2 startOrRestart ./pm2/ecosystem.config.js",
     "type-check": "tsc --noEmit --project ./tsconfig.json",
