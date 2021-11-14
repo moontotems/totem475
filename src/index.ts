@@ -4,6 +4,7 @@ import { TwitterApi } from 'twitter-api-v2'
 import dotenv from 'dotenv'
 dotenv.config({ path: '.env' })
 import { logger } from './utils'
+import githubHookVerification from './githubHookVerification'
 const path = require('path')
 const request = require('request')
 
@@ -24,8 +25,17 @@ const PORT = process.env.PORT || 5000
 const app = express()
 // setup express app
 app.set('port', PORT)
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+
+// https://stackoverflow.com/a/35651853/90674
+const rawBodySaver = function (req, res, buf, encoding) {
+  if (buf && buf.length) {
+    req.rawBody = buf.toString(encoding || 'utf8')
+  }
+}
+
+app.use(bodyParser.json({ verify: rawBodySaver }))
+app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }))
+app.use(bodyParser.raw({ verify: rawBodySaver, type: '*/*' }))
 
 // static public files
 app.use(express.static(path.join(__dirname, 'public')))
@@ -34,12 +44,15 @@ app.get('*', (req: Request, res: Response) => {
   return res.sendStatus(403)
 })
 
-app.post('/post', async (req: Request, res: Response) => {
+const verifyPostData = (req: Request, res: Response, next) => {
+  githubHookVerification(req, res, next)
+}
+
+app.post('/post', verifyPostData, async (req: Request, res: Response) => {
   const { headers, params, query, body } = req
 
   // github webhook
-  //const payload = JSON.parse(body.payload)
-
+  const payload = JSON.parse(body.payload)
   //console.log({ payload })
   //logger.info(payload)
 
@@ -51,12 +64,12 @@ app.post('/post', async (req: Request, res: Response) => {
         logger.info(`got message: ${commitMessage}`)
         logger.info('tweeting message')
         await readWriteClient.v1.tweet(commitMessage)
-        logger.info('tweeting message: Success')
+        logger.info('tweeting message: success')
       }
     })
   } catch (e) {
     logger.error(e.message)
-    return res.sendStatus(500)
+    return res.sendStatus(500, e.message)
   }
 
   return res.sendStatus(200)
