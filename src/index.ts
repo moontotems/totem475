@@ -18,7 +18,7 @@ app.set('port', PORT)
 app.use(express.static(path.join(__dirname, 'public')))
 
 // https://stackoverflow.com/a/35651853/90674
-const rawBodySaver = function (req, res, buf, encoding) {
+const rawBodySaver = (req, res, buf, encoding) => {
   if (buf && buf.length) {
     req.rawBody = buf.toString(encoding || 'utf8')
   }
