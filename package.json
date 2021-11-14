@@ -25,7 +25,7 @@
     "start:pm2": "cross-env NODE_ENV=production pm2 startOrRestart ./pm2/ecosystem.config.js",
     "type-check": "tsc --noEmit --project ./tsconfig.json",
     "type-check:watch": "yarn run type-check -- --watch",
-    "clean": "rm -rf .build || true",
+    "clean": "rm -rf ./build || true",
     "clean-cache": "rimraf -rf ./node_modules/.cache",
     "lint": "eslint --fix --ext .ts src/**/*.ts",
     "lint-staged": "lint-staged",
