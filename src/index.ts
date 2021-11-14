@@ -56,6 +56,7 @@ app.post('/post', async (req: Request, res: Response) => {
     })
   } catch (e) {
     logger.error(e.message)
+    return res.sendStatus(500)
   }
 
   return res.sendStatus(200)
