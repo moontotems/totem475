@@ -3,8 +3,8 @@
 module.exports = {
   apps: [
     {
-      name: 'nodejs-typescript-api',
-      script: 'yarn start:development',
+      name: 'totem475',
+      script: 'yarn start:app',
       args: [],
       watch: false,
       time: true
