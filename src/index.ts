@@ -1,30 +1,21 @@
 import express, { Request, Response } from 'express'
 import bodyParser from 'body-parser'
-import { TwitterApi } from 'twitter-api-v2'
 import dotenv from 'dotenv'
 dotenv.config({ path: '.env' })
-import { logger } from './utils'
 import githubHookVerification from './githubHookVerification'
+import { twitterClient, readOnlyClient, readWriteClient } from './twitterClient'
+import { logger } from './utils'
 const path = require('path')
 const request = require('request')
-
-// https://github.com/plhery/node-twitter-api-v2/blob/HEAD/doc/examples.md
-const twitterClient = new TwitterApi({
-  appKey: process.env.TWITTER_API_KEY,
-  appSecret: process.env.TWITTER_API_KEY_SECRET,
-  accessToken: process.env.TWITTER_APP_ACCESS_TOKEN,
-  accessSecret: process.env.TWITTER_APP_ACCESS_TOKEN_SECRET
-})
-
-const readOnlyClient = twitterClient.readOnly
-const readWriteClient = twitterClient.readWrite
 
 const PORT = process.env.PORT || 5000
 
 // create express app
 const app = express()
-// setup express app
+// set port
 app.set('port', PORT)
+// static public files
+app.use(express.static(path.join(__dirname, 'public')))
 
 // https://stackoverflow.com/a/35651853/90674
 const rawBodySaver = function (req, res, buf, encoding) {
@@ -36,9 +27,6 @@ const rawBodySaver = function (req, res, buf, encoding) {
 app.use(bodyParser.json({ verify: rawBodySaver }))
 app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }))
 app.use(bodyParser.raw({ verify: rawBodySaver, type: '*/*' }))
-
-// static public files
-app.use(express.static(path.join(__dirname, 'public')))
 
 app.get('*', (req: Request, res: Response) => {
   return res.sendStatus(403)
